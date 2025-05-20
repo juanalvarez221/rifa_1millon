@@ -1,0 +1,18 @@
+name: Agregar Numeros
+
+on:
+  workflow_dispatch:
+
+jobs:
+  agregar-numeros:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Instala dependencias
+        run: |
+          pip install -r requirements.txt
+      - name: Ejecuta agregar_numeros_base.py
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SQLALCHEMY_DATABASE_URI: ${{ secrets.SQLALCHEMY_DATABASE_URI }}
+        run: python agregar_numeros_base.py
