@@ -623,18 +623,40 @@ def admin_logout():
     return redirect(url_for('main.admin_login'))
 
 
-@main.route('/init_numeros_base')
-def init_numeros_base():
+@main.route('/crear_admins_una_vez')
+def crear_admins_una_vez():
     try:
-        for n in range(0, 100):
-            numero_str = f"{n:02d}"   # 00, 01, ..., 99
-            if not Numero.query.filter_by(numero=numero_str).first():
-                nuevo_numero = Numero(numero=numero_str, estado='disponible')
-                db.session.add(nuevo_numero)
+        from app.modelos import Administrador
+        admins_creados = []
+        # Juan
+        if not Administrador.query.filter_by(nombre_usuario="jfac2124").first():
+            admin1 = Administrador(
+                primer_nombre="Juan",
+                primer_apellido="Alvarez",
+                nombre_usuario="jfac2124",
+                correo_electronico="juancastaneda2123@gmail.com",
+                numero_celular="3156841671",
+                contrasena=bcrypt.generate_password_hash("jfac2124").decode('utf-8')
+            )
+            db.session.add(admin1)
+            admins_creados.append("Juan Alvarez")
+        # Camila
+        if not Administrador.query.filter_by(nombre_usuario="mcvl1002").first():
+            admin2 = Administrador(
+                primer_nombre="Camila",
+                primer_apellido="Vergara",
+                nombre_usuario="mcvl1002",
+                correo_electronico="vergaramariacamila7@gmail.com",
+                numero_celular="3004720595",
+                contrasena=bcrypt.generate_password_hash("mcvl1002").decode('utf-8')
+            )
+            db.session.add(admin2)
+            admins_creados.append("Camila Vergara")
         db.session.commit()
-        return "Números cargados correctamente (00-99)"
+        return f"Admins creados: {', '.join(admins_creados) if admins_creados else 'Ninguno, ya existían'}"
     except Exception as e:
         db.session.rollback()
         return str(e), 500
+
 
 
