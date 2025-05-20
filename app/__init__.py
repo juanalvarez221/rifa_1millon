@@ -74,3 +74,5 @@ def crear_app():
         return Usuario.query.get(int(user_id))
 
     return app
+
+app = crear_app()
