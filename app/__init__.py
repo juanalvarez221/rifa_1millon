@@ -50,6 +50,7 @@ def crear_app():
     from app.rutas import main
     app.register_blueprint(main)
 
+    
     # CSRF token en Jinja
     @app.context_processor
     def inject_csrf_token():
@@ -72,6 +73,13 @@ def crear_app():
     @login_manager.user_loader
     def load_user(user_id):
         return Usuario.query.get(int(user_id))
+    
+    with app.app_context():
+        try:
+            db.create_all()
+            print("¡Tablas creadas automáticamente si no existían!")
+        except Exception as e:
+            print(f"Error creando tablas: {e}")
 
     return app
 
