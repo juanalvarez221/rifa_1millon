@@ -1,0 +1,10 @@
+    - name: Export secrets as env vars
+      run: |
+        echo "MAIL_PORT=${{ secrets.MAIL_PORT }}" >> $GITHUB_ENV
+        echo "MAIL_SERVER=${{ secrets.MAIL_SERVER }}" >> $GITHUB_ENV
+        echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> $GITHUB_ENV
+        echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> $GITHUB_ENV
+        echo "MAIL_DEFAULT_SENDER=${{ secrets.MAIL_DEFAULT_SENDER }}" >> $GITHUB_ENV
+        echo "MAIL_USE_TLS=${{ secrets.MAIL_USE_TLS }}" >> $GITHUB_ENV
+        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+        echo "SQLALCHEMY_DATABASE_URI=${{ secrets.SQLALCHEMY_DATABASE_URI }}" >> $GITHUB_ENV
