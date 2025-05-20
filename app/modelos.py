@@ -46,5 +46,10 @@ class Administrador(db.Model):
     __tablename__ = 'administradores'
     id = db.Column(db.Integer, primary_key=True)
     nombre_usuario = db.Column(db.String(50), unique=True, nullable=False)
+    correo_electronico = db.Column(db.String(100), unique=True, nullable=False)
+    numero_celular = db.Column(db.String(20), nullable=True)
     contrasena = db.Column(db.String(255), nullable=False)
-    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+    nombre = db.Column(db.String(100), nullable=True)
+    apellido = db.Column(db.String(100), nullable=True)
+    # Si tienes más o menos, usa los correctos
+
