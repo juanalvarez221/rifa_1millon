@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 {% block contenido %}
-    <h2>Error 500 - Error interno del servidor 😱</h2>
-    <p>Ocurrió un error inesperado. Por favor, inténtalo más tarde o contacta a Juan y Camila.</p>
-    <a href="{{ url_for('main.inicio') }}" class="btn btn-primary">Volver al inicio</a>
+    <div class="text-center py-5">
+        <h1 class="display-3 text-danger">500</h1>
+        <h2 class="mb-4">Error interno del sistema</h2>
+        <p class="lead">
+            Ocurrió un error inesperado.<br>
+            Por favor, inténtalo más tarde.<br>
+            Si el problema persiste, contacta a <a href="mailto:juandrp777@gmail.com">soporte</a>.
+        </p>
+        <a href="{{ url_for('main.inicio') }}" class="btn btn-primary mt-3">Volver al inicio</a>
+    </div>
 {% endblock %}

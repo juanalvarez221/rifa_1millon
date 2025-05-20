@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block contenido %}
+    <div class="text-center py-5">
+        <h1 class="display-3 text-warning">400</h1>
+        <h2 class="mb-4">Solicitud incorrecta</h2>
+        <p class="lead">
+            La petición enviada al servidor no es válida.<br>
+            Por favor, revisa la información e intenta nuevamente.<br>
+            Si el problema persiste, <a href="mailto:soporte@tudominio.com">contacta a soporte</a>.
+        </p>
+        <a href="{{ url_for('main.inicio') }}" class="btn btn-primary mt-3">Volver al inicio</a>
+    </div>
+{% endblock %}

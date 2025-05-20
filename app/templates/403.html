@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% block contenido %}
-    <h2>Error 403 - Acceso prohibido 😐</h2>
-    <p>No tienes permisos para acceder a esta página.</p>
-    <a href="{{ url_for('main.inicio') }}" class="btn btn-primary">Volver al inicio</a>
+    <div class="text-center py-5">
+        <h1 class="display-3 text-warning">403</h1>
+        <h2 class="mb-4">Acceso prohibido</h2>
+        <p class="lead">
+            No tienes permisos para acceder a esta página.<br>
+            Si crees que esto es un error, por favor <a href="mailto:juandrp777@gmail.com">contacta a soporte</a>.
+        </p>
+        <a href="{{ url_for('main.inicio') }}" class="btn btn-primary mt-3">Volver al inicio</a>
+    </div>
 {% endblock %}

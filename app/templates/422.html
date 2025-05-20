@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block contenido %}
+    <div class="text-center py-5">
+        <h1 class="display-3 text-warning">422</h1>
+        <h2 class="mb-4">Datos no procesables</h2>
+        <p class="lead">
+            Los datos enviados no pueden ser procesados por el sistema.<br>
+            Por favor, revisa la información y vuelve a intentarlo.<br>
+            Si el error continúa, <a href="mailto:soporte@tudominio.com">contacta a soporte</a>.
+        </p>
+        <a href="{{ url_for('main.inicio') }}" class="btn btn-primary mt-3">Volver al inicio</a>
+    </div>
+{% endblock %}
