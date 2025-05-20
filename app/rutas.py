@@ -634,30 +634,42 @@ def init_admins():
     from app import db, bcrypt
 
     try:
-        # Admin 1: Juan Alvarez
-        admin1 = Administrador.query.filter_by(nombre_usuario="jfac2124").first()
-        if not admin1:
-            admin1 = Administrador(
-                nombre_usuario="jfac2124",
-                correo_electronico="juancastaneda2123@gmail.com",
-                numero_celular="3156841671",
-                contrasena=bcrypt.generate_password_hash("jfac2124").decode('utf-8'),
-                nombre="Juan",
-                apellido="Alvarez"
-            )
+        # ---- PRIMER ADMIN ----
+        # Intentar con correo_electronico. Si falla, intentar con 'email'
+        admin_kwargs1 = dict(
+            nombre_usuario="jfac2124",
+            correo_electronico="juancastaneda2123@gmail.com",
+            numero_celular="3156841671",
+            contrasena=bcrypt.generate_password_hash("jfac2124").decode('utf-8'),
+            nombre="Juan",
+            apellido="Alvarez"
+        )
+        try:
+            admin1 = Administrador(**admin_kwargs1)
+        except TypeError:
+            admin_kwargs1['email'] = admin_kwargs1.pop('correo_electronico')
+            admin1 = Administrador(**admin_kwargs1)
+        # Busca si ya existe
+        existe_admin1 = Administrador.query.filter_by(nombre_usuario="jfac2124").first()
+        if not existe_admin1:
             db.session.add(admin1)
 
-        # Admin 2: Camila Vergara
-        admin2 = Administrador.query.filter_by(nombre_usuario="mcvl1002").first()
-        if not admin2:
-            admin2 = Administrador(
-                nombre_usuario="mcvl1002",
-                correo_electronico="vergaramariacamila7@gmail.com",
-                numero_celular="3004720595",
-                contrasena=bcrypt.generate_password_hash("mcvl1002").decode('utf-8'),
-                nombre="Camila",
-                apellido="Vergara"
-            )
+        # ---- SEGUNDO ADMIN ----
+        admin_kwargs2 = dict(
+            nombre_usuario="mcvl1002",
+            correo_electronico="vergaramariacamila7@gmail.com",
+            numero_celular="3004720595",
+            contrasena=bcrypt.generate_password_hash("mcvl1002").decode('utf-8'),
+            nombre="Camila",
+            apellido="Vergara"
+        )
+        try:
+            admin2 = Administrador(**admin_kwargs2)
+        except TypeError:
+            admin_kwargs2['email'] = admin_kwargs2.pop('correo_electronico')
+            admin2 = Administrador(**admin_kwargs2)
+        existe_admin2 = Administrador.query.filter_by(nombre_usuario="mcvl1002").first()
+        if not existe_admin2:
             db.session.add(admin2)
 
         db.session.commit()
