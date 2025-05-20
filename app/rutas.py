@@ -621,3 +621,21 @@ def admin_logout():
     session.pop('admin_id', None)
     flash('Sesión admin cerrada.', 'success')
     return redirect(url_for('main.admin_login'))
+
+
+@main.route('/init_numeros_base')
+def init_numeros_base():
+    # SOLO ejecuta esto 1 vez (luego borra la ruta)
+    try:
+        cantidad = 1000  # Cambia a la cantidad de números que necesitas
+        creados = 0
+        for n in range(1, cantidad + 1):
+            numero_str = str(n).zfill(2)
+            if not Numero.query.filter_by(numero=numero_str).first():
+                db.session.add(Numero(numero=numero_str, estado='disponible'))
+                creados += 1
+        db.session.commit()
+        return f"{creados} números base cargados correctamente.", 200
+    except Exception as e:
+        db.session.rollback()
+        return str(e), 500
