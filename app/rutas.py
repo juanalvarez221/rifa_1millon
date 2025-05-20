@@ -638,12 +638,12 @@ def init_admins():
         admin1 = Administrador.query.filter_by(nombre_usuario="jfac2124").first()
         if not admin1:
             admin1 = Administrador(
-                nombre="Juan",
-                apellido="Alvarez",
                 nombre_usuario="jfac2124",
                 correo_electronico="juancastaneda2123@gmail.com",
                 numero_celular="3156841671",
-                contrasena=bcrypt.generate_password_hash("jfac2124").decode('utf-8')
+                contrasena=bcrypt.generate_password_hash("jfac2124").decode('utf-8'),
+                nombre="Juan",
+                apellido="Alvarez"
             )
             db.session.add(admin1)
 
@@ -651,12 +651,12 @@ def init_admins():
         admin2 = Administrador.query.filter_by(nombre_usuario="mcvl1002").first()
         if not admin2:
             admin2 = Administrador(
-                nombre="Camila",
-                apellido="Vergara",
                 nombre_usuario="mcvl1002",
                 correo_electronico="vergaramariacamila7@gmail.com",
                 numero_celular="3004720595",
-                contrasena=bcrypt.generate_password_hash("mcvl1002").decode('utf-8')
+                contrasena=bcrypt.generate_password_hash("mcvl1002").decode('utf-8'),
+                nombre="Camila",
+                apellido="Vergara"
             )
             db.session.add(admin2)
 
@@ -665,5 +665,6 @@ def init_admins():
     except Exception as e:
         db.session.rollback()
         return f"Error: {str(e)}", 500
+
 
 
