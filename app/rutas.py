@@ -235,21 +235,8 @@ def confirmar_pago():
                     
                     # SUBIR A CLOUDINARY
                     upload_result = cloudinary.uploader.upload(comprobante, resource_type="auto")
-                    comprobante_url = upload_result['secure_url']
-                    pago.comprobante_url = comprobante_url  # O el campo que uses para almacenar la URL
-
-                    # Guardar el archivo (nombre único y extensión original)
-                    filename = secure_filename(f'comprobante_{reserva.id}_{uuid4().hex}{ext}')
-                    relative_path = f'comprobantes/{filename}'
-                    ruta = os.path.join('app/static', relative_path)
-                    os.makedirs(os.path.dirname(ruta), exist_ok=True)
-                    try:
-                        comprobante.save(ruta)
-                        pago.comprobante_ruta = relative_path  # Guarda solo la ruta relativa
-                    except Exception as e:
-                        flash('Error al guardar el comprobante. Por favor, intenta de nuevo. 😔', 'error')
-                        return render_template('confirmar_pago.html', reservas=reservas, metodo_pago=metodo_pago)
-
+                    comprobante_ruta = upload_result['secure_url']
+                    pago.comprobante_ruta = comprobante_ruta   # O el campo que uses para almacenar la URL
 
                 reserva.estado = 'confirmada'
                 reserva.numero.estado = 'pagado'
