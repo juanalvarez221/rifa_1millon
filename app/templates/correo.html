@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>¡Has asegurado tu oportunidad!</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5faff; color: #223B59; margin: 0; padding: 0;}
+        .card {
+            max-width: 430px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 6px 32px 0 #143f5e22;
+            padding: 2rem 2.5rem;
+            text-align: center;
+            border: 1px solid #dbeafe;
+        }
+        h1 { color: #2376e2; }
+        .badge-num {
+            background: linear-gradient(90deg, #2d9cdb 0%, #2376e2 100%);
+            color: #fff;
+            padding: 0.6em 1.3em;
+            border-radius: 32px;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 12px 4px;
+        }
+        .footer {
+            font-size: 0.98em;
+            color: #326cb5;
+            margin-top: 2em;
+        }
+        .highlight { color: #143F5E; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>¡Tu oportunidad está reservada!</h1>
+        <p>
+            Has reservado el número <span class="badge-num">{{ numero }}</span> para participar por <span class="highlight">1 millón de pesos</span>.<br>
+            <br>
+            Recuerda confirmar tu pago en los próximos <b>15 minutos</b> para no perder la oportunidad.<br>
+            <br>
+            <b>¿Próximo paso?</b> Ingresa a la app, confirma tu pago y reta a la suerte.<br>
+            <br>
+            ¡Mucha suerte!<br>
+        </p>
+        <div class="footer">
+            Este mensaje es automático.<br>
+            <b>¡Que la fortuna esté de tu lado!</b>
+        </div>
+    </div>
+</body>
+</html>

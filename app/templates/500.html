@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block contenido %}
+    <h2>Error 500 - Error interno del servidor 😱</h2>
+    <p>Ocurrió un error inesperado. Por favor, inténtalo más tarde o contacta a Juan y Camila.</p>
+    <a href="{{ url_for('main.inicio') }}" class="btn btn-primary">Volver al inicio</a>
+{% endblock %}

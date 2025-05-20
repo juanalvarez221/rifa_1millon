@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block contenido %}
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold text-primary mb-2">Sorteo Especial – $1.000.000 COP</h1>
+        <p class="mb-1 text-info fw-semibold">Valor del boleto: <span class="fw-bold text-primary">$20,000 COP</span></p>
+        <p class="lead text-secondary mb-2">
+            Seleccione uno o más números y participe.<br>
+            El sorteo se realizará el <b>13 de junio de 2025</b> a las <b>11:00 p.m. (hora Colombia, GMT-5)</b>.<br>
+            El número ganador será el que coincida con las dos últimas cifras del primer premio de la <b>Lotería de Medellín</b>.
+        </p>
+        <div class="mb-3">
+            <span class="badge bg-gradient-blue fs-6 py-2 px-4 shadow" id="countdown">
+                Calculando tiempo restante...
+            </span>
+        </div>
+    </div>
+    <form method="POST" class="p-4 bg-white rounded-4 shadow-lg border-0 animate__animated animate__fadeIn">
+        {{ form.hidden_tag() }}
+        <div class="mb-3 text-center">
+            <h5 class="mb-2 text-info">Seleccione sus números</h5>
+            <div class="row row-cols-6 row-cols-sm-8 row-cols-md-10 g-2 justify-content-center">
+                {% for num, estado in numeros %}
+                    <div class="col">
+                        {% if estado == 'disponible' %}
+                            <input type="checkbox" name="numeros" value="{{ num }}" id="num_{{ num }}" class="btn-check" autocomplete="off">
+                            <label for="num_{{ num }}" class="btn btn-outline-primary fw-bold rounded-3 shadow-sm numero-disponible" data-bs-toggle="tooltip" title="Disponible">{{ num }}</label>
+                        {% elif estado == 'reservado' %}
+                            <label class="btn btn-outline-warning fw-bold rounded-3 shadow-sm numero-reservado disabled" title="Reservado temporalmente">
+                                {{ num }} <i class="bi bi-clock"></i>
+                            </label>
+                        {% elif estado == 'confirmada' %}
+                            <label class="btn btn-outline-info fw-bold rounded-3 shadow-sm numero-confirmada disabled" title="Confirmado por otro participante">
+                                {{ num }} <i class="bi bi-check-circle"></i>
+                            </label>
+                        {% elif estado == 'pagada' %}
+                            <label class="btn btn-success fw-bold rounded-3 shadow-sm numero-pagada disabled" title="Pagado">
+                                {{ num }} <i class="bi bi-cash-coin"></i>
+                            </label>
+                        {% else %}
+                            <label class="btn btn-outline-secondary fw-bold rounded-3 shadow-sm disabled" title="No disponible">{{ num }}</label>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-gradient-blue btn-lg px-5 shadow">
+                Confirmar participación
+            </button>
+        </div>
+        <div class="text-center mt-3">
+            <a href="{{ url_for('main.seleccion_inteligente') }}" class="btn btn-outline-primary btn-lg px-4 btn-azul-animado">
+                Selección automática <i class="bi bi-stars"></i>
+            </a>
+        </div>
+        <div class="text-center mt-4 text-muted">
+            <small>
+                Los números reservados permanecen bloqueados durante 15 minutos.<br>
+                Posteriormente estarán disponibles nuevamente.
+            </small>
+        </div>
+    </form>
+    <script>
+        // Contador regresivo profesional al sorteo (hora Colombia, GMT-5)
+        document.addEventListener("DOMContentLoaded", function() {
+            // Fecha y hora del sorteo: 13 junio 2025, 11:00 p.m. hora Colombia (GMT-5)
+            var sorteoFecha = new Date("2025-06-13T23:00:00-05:00").getTime();
+            var countdownElem = document.getElementById("countdown");
+
+            function actualizarContador() {
+                var ahora = new Date().getTime();
+                var distancia = sorteoFecha - ahora;
+
+                if (distancia > 0) {
+                    var dias = Math.floor(distancia / (1000 * 60 * 60 * 24));
+                    var horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
+                    var segundos = Math.floor((distancia % (1000 * 60)) / 1000);
+
+                    countdownElem.textContent =
+                        "Faltan " + dias + "d " + horas + "h " + minutos + "m " + segundos + "s para el sorteo";
+                } else {
+                    countdownElem.textContent = "¡El sorteo está en curso o ha finalizado!";
+                }
+            }
+
+            actualizarContador();
+            setInterval(actualizarContador, 1000);
+
+            // Activa tooltips de Bootstrap
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+{% endblock %}

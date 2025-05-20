@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block contenido %}
+<div class="perfil-usuario-container mx-auto" style="max-width:650px;">
+    <div class="card shadow rounded-4 p-4 border-0 mb-4 animate__animated animate__fadeIn">
+        <h2 class="fw-bold text-primary mb-3 text-center">¡Bienvenido, {{ usuario.primer_nombre }}!</h2>
+
+        <div class="mb-4 text-center">
+            <span class="fw-semibold text-secondary"><i class="bi bi-envelope"></i> {{ usuario.correo_electronico }}</span>
+            <br>
+            <span class="fw-semibold text-secondary"><i class="bi bi-phone"></i> {{ usuario.numero_celular }}</span>
+        </div>
+
+        <h4 class="mb-3 text-info text-center">Tus números reservados</h4>
+        {% if reservas %}
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-primary">Número</th>
+                            <th class="text-primary">Estado</th>
+                            <th class="text-primary">Reservado el</th>
+                            <th class="text-primary">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reserva in reservas %}
+                        <tr>
+                            <td>{{ reserva.numero.numero if reserva.numero else '-' }}</td>
+                            <td>
+                                {% if reserva.estado == 'reservado' %}
+                                    <span class="badge bg-warning text-dark">Reservado</span>
+                                {% elif reserva.estado == 'confirmada' %}
+                                    <span class="badge bg-info text-dark">Confirmada</span>
+                                {% elif reserva.estado == 'pagada' %}
+                                    <span class="badge bg-success">Pagada</span>
+                                {% elif reserva.estado == 'expirada' %}
+                                    <span class="badge bg-secondary">Expirada</span>
+                                {% else %}
+                                    <span class="badge bg-light text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ reserva.creado_en.strftime('%d-%m-%Y %H:%M') if reserva.creado_en else '-' }}</td>
+                            <td>
+                                {% if reserva.estado == 'reservado' %}
+                                    <form action="{{ url_for('main.confirmar_pago') }}" method="get" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-gradient-blue">
+                                            Terminar compra
+                                        </button>
+                                    </form>
+                                {% elif reserva.estado == 'confirmada' %}
+                                    <span class="text-info">Pendiente de revisión de pago</span>
+                                {% elif reserva.estado == 'pagada' %}
+                                    <span class="text-success">¡Completado!</span>
+                                {% elif reserva.estado == 'expirada' %}
+                                    <span class="text-muted">Expirada</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-muted text-center mt-2">
+                <small>
+                    Si tienes algún número en estado <b>"Reservado"</b>, recuerda confirmar tu pago antes de 15 minutos para no perder la oportunidad.<br>
+                    ¡La suerte sonríe a quienes se atreven!
+                </small>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center mt-4">
+                No tienes números reservados ni pagados.<br>
+                ¡Participa y reta al destino por el premio de 1 millón de pesos!
+            </div>
+        {% endif %}
+    </div>
+    <div class="text-center">
+        <a href="{{ url_for('main.inicio') }}" class="btn btn-gradient-blue btn-lg me-2">Volver al inicio</a>
+        <a href="{{ url_for('main.logout') }}" class="btn btn-outline-secondary btn-lg">Cerrar sesión</a>
+    </div>
+</div>
+{% endblock %}

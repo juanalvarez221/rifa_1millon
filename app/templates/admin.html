@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% block contenido %}
+<div class="container mt-4">
+    <!-- Dashboard de resumen -->
+    <div class="row justify-content-center mb-4 g-2">
+        <div class="col-6 col-md-2">
+            <div class="card text-center bg-primary text-white shadow-sm rounded-4">
+                <div class="card-body py-3">
+                    <div class="fs-4 fw-bold">{{ resumen.participantes }}</div>
+                    <div>Participantes</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card text-center bg-success text-white shadow-sm rounded-4">
+                <div class="card-body py-3">
+                    <div class="fs-4 fw-bold">{{ resumen.pagados }}</div>
+                    <div>Pagados</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card text-center bg-warning text-dark shadow-sm rounded-4">
+                <div class="card-body py-3">
+                    <div class="fs-4 fw-bold">{{ resumen.pendientes }}</div>
+                    <div>Pendientes</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card text-center bg-secondary text-white shadow-sm rounded-4">
+                <div class="card-body py-3">
+                    <div class="fs-4 fw-bold">{{ resumen.expirados }}</div>
+                    <div>Expirados</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card text-center bg-info text-dark shadow-sm rounded-4">
+                <div class="card-body py-3">
+                    <div class="fs-4 fw-bold">{{ resumen.por_expirar }}</div>
+                    <div>Por expirar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+        <div>
+            <label class="me-2 fw-bold">Filtrar por estado:</label>
+            <select class="form-select d-inline-block w-auto" id="filtroEstado">
+                <option value="">Todos</option>
+                <option value="reservada">Reservada</option>
+                <option value="confirmada">Confirmada</option>
+                <option value="pagada">Pagada</option>
+                <option value="expirada">Expirada</option>
+                <option value="cancelada">Cancelada</option>
+            </select>
+        </div>
+        <div class="flex-grow-1"></div>
+        <div>
+            <input class="form-control d-inline-block" id="busquedaParticipante" placeholder="Buscar participante..." style="width:200px;">
+            <a href="{{ url_for('main.exportar_csv') }}" class="btn btn-outline-primary ms-2"><i class="bi bi-download"></i> Exportar CSV</a>
+        </div>
+    </div>
+
+    <!-- Tabla de Participantes -->
+    <div class="table-responsive bg-white rounded-4 shadow" style="min-width: 1100px;">
+        <table class="table table-hover align-middle" id="tabla-participantes">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Celular</th>
+                    <th>Número</th>
+                    <th>Método de pago</th>
+                    <th>Detalle pago</th>
+                    <th>Comprobante</th>
+                    <th>Estado</th>
+                    <th>Reservado hace</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaParticipantesBody">
+            {% set contador = 1 %}
+            {% for usuario in usuarios %}
+                {% set reservas_usuario = usuario.reservas | sort(attribute='creado_en', reverse=True) %}
+                {% for reserva in reservas_usuario %}
+                    {% set estado_visual = "" %}
+                    {% if reserva.estado == 'pagada' %}
+                        {% set estado_visual = "pagada" %}
+                    {% elif reserva.estado == 'confirmada' %}
+                        {% set estado_visual = "confirmada" %}
+                    {% elif reserva.estado == 'activa' %}
+                        {% set estado_visual = "reservada" %}
+                    {% elif reserva.estado == 'expirada' %}
+                        {% set estado_visual = "expirada" %}
+                    {% elif reserva.estado == 'cancelada' %}
+                        {% set estado_visual = "cancelada" %}
+                    {% endif %}
+
+                    <tr data-estado="{{ estado_visual }}">
+                        <td>{{ contador }}</td>
+                        <td>{{ usuario.primer_nombre }} {{ usuario.primer_apellido }}</td>
+                        <td>{{ usuario.correo_electronico }}</td>
+                        <td>{{ usuario.numero_celular }}</td>
+                        <td>
+                            <span class="badge fs-5 px-3 py-2 rounded-pill
+                            {% if estado_visual == 'pagada' %}bg-success
+                            {% elif estado_visual == 'confirmada' %}bg-primary
+                            {% elif estado_visual == 'reservada' %}bg-warning text-dark
+                            {% elif estado_visual == 'expirada' %}bg-secondary
+                            {% elif estado_visual == 'cancelada' %}bg-danger
+                            {% endif %}">
+                                {{ reserva.numero.numero }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if reserva.pago %}
+                                {{ reserva.pago.metodo|capitalize }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if reserva.pago %}
+                                {% if reserva.pago.metodo == 'efectivo' %}
+                                    Efectivo a: {{ reserva.pago.destinatario or '-' }}
+                                {% elif reserva.pago.metodo == 'transferencia' %}
+                                    Transferencia
+                                {% endif %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if reserva.pago and reserva.pago.comprobante_ruta %}
+                                <a href="{{ url_for('static', filename=reserva.pago.comprobante_ruta) }}" target="_blank" class="btn btn-sm btn-outline-primary">Ver</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge fs-6 px-3 py-2 rounded-pill
+                            {% if estado_visual == 'pagada' %}bg-success
+                            {% elif estado_visual == 'confirmada' %}bg-primary
+                            {% elif estado_visual == 'reservada' %}bg-warning text-dark
+                            {% elif estado_visual == 'expirada' %}bg-secondary
+                            {% elif estado_visual == 'cancelada' %}bg-danger
+                            {% endif %}">
+                                {% if estado_visual == 'pagada' %}Pagada
+                                {% elif estado_visual == 'confirmada' %}Confirmada
+                                {% elif estado_visual == 'reservada' %}Reservada
+                                {% elif estado_visual == 'expirada' %}Expirada
+                                {% elif estado_visual == 'cancelada' %}Cancelada
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            {% if reserva.estado != 'expirada' %}
+                                {% set minutos = ((now - reserva.creado_en).total_seconds() // 60)|int %}
+                                {{ minutos }} min
+                                {% if estado_visual == 'reservada' and minutos >= 12 %}
+                                    <span class="text-danger"><i class="bi bi-exclamation-triangle"></i> ¡Por expirar!</span>
+                                {% endif %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <!-- Acciones posibles por estado -->
+                            <div class="d-flex flex-column gap-2">
+                                {% if estado_visual == 'reservada' %}
+                                    <!-- Confirmar -->
+                                    <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='confirmada') }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="btn btn-sm btn-primary w-100">Confirmar</button>
+                                    </form>
+                                    <!-- Cancelar -->
+                                    <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='cancelada') }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="btn btn-sm btn-danger w-100">Cancelar</button>
+                                    </form>
+                                {% elif estado_visual == 'confirmada' %}
+                                    <!-- Marcar como Pagada -->
+                                    <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='pagada') }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="btn btn-sm btn-success w-100">Marcar como Pagada</button>
+                                    </form>
+                                    <!-- Anular Pago -->
+                                    <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='cancelada') }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger w-100">Anular Pago</button>
+                                    </form>
+                                {% elif estado_visual == 'pagada' %}
+                                    <!-- Liberar número -->
+                                    <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='disponible') }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning w-100">Liberar</button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-muted">---</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% set contador = contador + 1 %}
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filtroEstado = document.getElementById('filtroEstado');
+    const tablaBody = document.getElementById('tablaParticipantesBody');
+    const busqueda = document.getElementById('busquedaParticipante');
+    function filtrarTabla() {
+        const estado = filtroEstado.value;
+        const texto = busqueda.value.trim().toLowerCase();
+        Array.from(tablaBody.querySelectorAll('tr')).forEach(row => {
+            const rowEstado = row.getAttribute('data-estado');
+            const matchEstado = !estado || rowEstado === estado;
+            const matchBusqueda = !texto || row.textContent.toLowerCase().includes(texto);
+            row.style.display = (matchEstado && matchBusqueda) ? '' : 'none';
+        });
+    }
+    filtroEstado.addEventListener('change', filtrarTabla);
+    busqueda.addEventListener('input', filtrarTabla);
+});
+</script>
+{% endblock %}

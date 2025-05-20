@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block contenido %}
+    <div class="login-container mx-auto" style="max-width:400px;">
+        <div class="card shadow rounded-4 p-4 border-0 mb-4 animate__animated animate__fadeIn">
+            <h2 class="fw-bold text-primary mb-3 text-center">¡Bienvenido de nuevo!</h2>
+            <p class="text-center text-secondary mb-3">
+                Ingresa tus datos para consultar tus números y desafiar la suerte por el gran premio de <b>1 millón de pesos</b>.
+            </p>
+
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <div class="mb-3">
+                    <label for="primer_nombre" class="form-label fw-semibold">Primer nombre</label>
+                    <input type="text" class="form-control" id="primer_nombre" name="primer_nombre" placeholder="Tu nombre" required>
+                </div>
+                <div class="mb-3">
+                    <label for="numero_celular" class="form-label fw-semibold">Número de celular</label>
+                    <input type="tel" class="form-control" id="numero_celular" name="numero_celular" placeholder="Ej: 3123456789" required>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-gradient-blue btn-lg w-100 mt-2">
+                        Consultar mis números
+                    </button>
+                </div>
+            </form>
+            <div class="text-center text-muted mt-3">
+                <small>
+                    ¿Aún no tienes números?  
+                    <a href="{{ url_for('main.inicio') }}" class="text-primary text-decoration-underline">Participa aquí</a>
+                    <br>
+                    ¡La suerte solo sonríe a quienes se atreven a intentarlo!
+                </small>
+            </div>
+        </div>
+    </div>
+{% endblock %}

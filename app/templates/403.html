@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block contenido %}
+    <h2>Error 403 - Acceso prohibido 😐</h2>
+    <p>No tienes permisos para acceder a esta página.</p>
+    <a href="{{ url_for('main.inicio') }}" class="btn btn-primary">Volver al inicio</a>
+{% endblock %}

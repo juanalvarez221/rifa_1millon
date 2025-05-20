@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block contenido %}
+<div class="text-center mb-4">
+    <h2 class="fw-bold text-primary mb-2">¡Confirma tu pago y desafía la suerte!</h2>
+    <p class="lead text-secondary">
+        Estás a un paso de participar por <b>1 millón de pesos</b>.
+        <br>
+        Números seleccionados:
+        <span class="fw-bold text-gradient-blue">
+            {{ reservas | map(attribute='numero.numero') | join(', ') }}
+        </span>
+    </p>
+</div>
+
+<form method="POST" enctype="multipart/form-data" class="p-4 bg-white rounded-4 shadow-lg border-0 mx-auto" style="max-width:500px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="mb-3">
+        <label for="metodo_pago" class="form-label fw-semibold">Selecciona el método de pago</label>
+        <select name="metodo_pago" id="metodo_pago" class="form-select" required>
+            <option value="efectivo" {% if metodo_pago == 'efectivo' %}selected{% endif %}>Pago en efectivo</option>
+            <option value="transferencia" {% if metodo_pago == 'transferencia' %}selected{% endif %}>Transferencia electrónica</option>
+        </select>
+    </div>
+
+    <!-- Opciones de efectivo -->
+    <div id="opciones-efectivo" class="mb-3" style="display:none;">
+        <label for="destinatario" class="form-label">¿A qué encargado entregarás el dinero?</label>
+        <select name="destinatario" id="destinatario" class="form-select">
+            <option value="">Selecciona una opción</option>
+            <option value="Juan">Encargado Juan</option>
+            <option value="Camila">Encargada Camila</option>
+        </select>
+        <div class="form-text">Recuerda confirmar tu pago directamente con el encargado seleccionado.</div>
+    </div>
+
+    <!-- Opciones de transferencia -->
+    <div id="opciones-transferencia" class="mb-3" style="display:none;">
+        <div class="mb-2 text-center">
+            <img src="{{ url_for('static', filename='img/qr_nequi.jpg') }}" alt="Código QR Nequi" style="max-width:180px; border-radius:18px; box-shadow:0 2px 10px #2376e222;">
+            <div class="mt-2 fw-semibold text-primary">Cuenta NEQUI a nombre de MARIA VERGARA</div>
+            <div class="d-flex align-items-center justify-content-center mt-2 gap-2">
+                <span id="num-nequi" class="bg-gradient-blue text-white px-3 py-2 rounded-3 fw-bold" style="font-size:1.12em; letter-spacing:1px;">
+                    3004720595
+                </span>
+                <button type="button" class="btn btn-outline-primary btn-sm fw-bold" onclick="copiarNequi()">Copiar</button>
+            </div>
+            <div class="form-text mt-2">
+                Escanea el QR o transfiere a NEQUI.<br>
+                Adjunta el comprobante (imagen o PDF, máx 5MB):
+            </div>
+        </div>
+        <div class="mb-2">
+            <label for="comprobante" class="form-label">Comprobante de transferencia</label>
+            <input type="file" name="comprobante" id="comprobante" class="form-control"
+                accept="application/pdf,image/jpeg,image/png,image/jpg,image/webp,image/bmp,image/gif">
+        </div>
+    </div>
+
+    <!-- Aceptar términos y condiciones antes de enviar -->
+    <div class="form-check my-3">
+        <input class="form-check-input" type="checkbox" value="" id="aceptoTyC" required>
+        <label class="form-check-label" for="aceptoTyC">
+            Acepto los <a href="#" data-bs-toggle="modal" data-bs-target="#modalTyC">términos y condiciones del sorteo</a>
+        </label>
+    </div>
+
+    <button type="submit" id="btn-confirmar" class="btn btn-gradient-blue btn-lg w-100 mt-2" disabled>
+        Confirmar y participar
+    </button>
+    <div class="text-center mt-3 text-muted">
+        <small>
+            ¡Asegura tu participación! Recuerda, tu oportunidad estará reservada por 15 minutos.<br>
+            <span class="fst-italic">El pago debe ser confirmado; boleta no cancelada no participa en el sorteo.</span>
+        </small>
+    </div>
+</form>
+
+<!-- Modal de Términos y Condiciones -->
+<div class="modal fade" id="modalTyC" tabindex="-1" aria-labelledby="modalTyCLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content rounded-4">
+      <div class="modal-header bg-gradient-blue text-white rounded-top-4">
+        <h5 class="modal-title" id="modalTyCLabel">Términos y Condiciones del Sorteo</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-secondary">
+        <ul>
+          <li><b>Participación válida únicamente para personas mayores de edad.</b></li>
+          <li>Solo participarán en el sorteo las boletas que hayan sido pagadas y confirmadas antes de la hora de cierre del sorteo.</li>
+          <li>La reserva de números es temporal: si no se confirma el pago en máximo 15 minutos, la boleta quedará nuevamente disponible.</li>
+          <li>La boleta es personal e intransferible. El ganador será el titular que figure en el sistema con el número ganador.</li>
+          <li>El sorteo se realizará el 13 de junio de 2025 a las 11:00 p.m. (hora Colombia, GMT-5), tomando como base las dos últimas cifras del primer premio de la Lotería de Medellín.</li>
+          <li>El premio corresponde a un valor total de $1.000.000 COP, sujeto a entrega según las condiciones establecidas por la organización.</li>
+          <li>La organización no se hace responsable por pagos no reportados, comprobantes ilegibles o errores en la información suministrada.</li>
+          <li>La participación implica la aceptación total de estas condiciones y el uso de datos personales con fines organizativos del sorteo.</li>
+          <li>En caso de empate, cancelación del sorteo o situaciones no previstas, la organización determinará el procedimiento correspondiente.</li>
+        </ul>
+        <div class="mt-3 text-center">
+          <small class="text-primary">Si tienes dudas, consulta con el equipo organizador antes de participar.</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-gradient-blue" data-bs-dismiss="modal">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Mostrar campos según el método seleccionado
+    function mostrarOpcionesPago(metodo) {
+        document.getElementById('opciones-efectivo').style.display = metodo === 'efectivo' ? 'block' : 'none';
+        document.getElementById('opciones-transferencia').style.display = metodo === 'transferencia' ? 'block' : 'none';
+        // Manejar required del comprobante solo en transferencia
+        var comprobante = document.getElementById('comprobante');
+        if (comprobante) {
+            comprobante.required = (metodo === 'transferencia');
+        }
+    }
+    // Inicializar según valor actual
+    document.addEventListener("DOMContentLoaded", function() {
+        var select = document.getElementById('metodo_pago');
+        mostrarOpcionesPago(select.value);
+        select.addEventListener('change', function() {
+            mostrarOpcionesPago(this.value);
+        });
+
+        // Controlar habilitación del botón según aceptación TyC
+        var checkTyC = document.getElementById('aceptoTyC');
+        var btn = document.getElementById('btn-confirmar');
+        checkTyC.addEventListener('change', function() {
+            btn.disabled = !this.checked;
+        });
+        // Si ya está checkeado por recarga del form
+        btn.disabled = !checkTyC.checked;
+    });
+
+    function copiarNequi() {
+        var copyText = document.getElementById("num-nequi").innerText;
+        navigator.clipboard.writeText(copyText).then(function() {
+            alert("¡Número de cuenta NEQUI copiado!");
+        }, function(err) {
+            alert("No se pudo copiar. Copia manualmente: 3004720595");
+        });
+    }
+</script>
+{% endblock %}

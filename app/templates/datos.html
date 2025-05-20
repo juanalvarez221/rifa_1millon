@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block contenido %}
+    <div class="datos-usuario-container mx-auto" style="max-width:450px;">
+        <div class="card shadow rounded-4 p-4 border-0 mb-4 animate__animated animate__fadeIn">
+            <h2 class="fw-bold text-primary mb-3 text-center">¡Participa por 1 millón de pesos!</h2>
+            <p class="text-center text-secondary mb-3">
+                Has seleccionado los números:
+                <span class="fw-bold text-gradient-blue">{{ numeros | join(', ') }}</span>
+                <br>
+                Completa tus datos y reta a la suerte en esta gran oportunidad.
+            </p>
+
+            
+
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.primer_nombre.label(class="form-label fw-semibold") }}
+                    {{ form.primer_nombre(class="form-control", placeholder="Nombre") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.primer_apellido.label(class="form-label fw-semibold") }}
+                    {{ form.primer_apellido(class="form-control", placeholder="Apellido") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.correo_electronico.label(class="form-label fw-semibold") }}
+                    {{ form.correo_electronico(class="form-control", placeholder="tu@email.com") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.numero_celular.label(class="form-label fw-semibold") }}
+                    {{ form.numero_celular(class="form-control", placeholder="Ej: 3123456789") }}
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-gradient-blue btn-lg w-100 mt-3">
+                        Continuar y desafiar la suerte
+                    </button>
+                </div>
+            </form>
+            <div class="text-center text-muted mt-3">
+                <small>
+                    Todos tus datos están protegidos.  
+                    <br> ¡Cada participación es una nueva oportunidad de ganar!
+                </small>
+            </div>
+        </div>
+    </div>
+{% endblock %}
