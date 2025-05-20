@@ -136,11 +136,9 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if reserva.pago and reserva.pago.comprobante_url %}
-                                {% set ext = reserva.pago.comprobante_url[-4:]|lower %}
-                                {% if ext == '.pdf' %}
-                                    <a href="{{ reserva.pago.comprobante_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Ver PDF</a>
-                                {% else %}
+                            {% if reserva.pago and reserva.pago.comprobante_ruta %}
+                                <a href="{{ reserva.pago.comprobante_ruta }}" target="_blank" class="btn btn-sm btn-outline-primary">Ver</a>
+                            {% else %}
                                     <a href="{{ reserva.pago.comprobante_url }}" target="_blank">
                                         <img src="{{ reserva.pago.comprobante_url }}" alt="Comprobante" style="max-width:60px;max-height:60px;object-fit:cover;border-radius:8px;">
                                     </a>
