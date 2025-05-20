@@ -7,6 +7,16 @@ from flask_mail import Mail
 from dotenv import load_dotenv
 from flask_wtf.csrf import generate_csrf
 from flask_login import LoginManager
+import cloudinary
+import cloudinary.uploader
+import os
+
+cloudinary.config(
+    cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key = os.getenv('CLOUDINARY_API_KEY'),
+    api_secret = os.getenv('CLOUDINARY_API_SECRET')
+)
+
 
 # Cargar variables de entorno desde .env
 load_dotenv()

@@ -19,6 +19,16 @@ from collections import namedtuple
 from sqlalchemy import func
 from flask_login import login_required
 from app import crear_app, db, bcrypt
+import cloudinary
+import cloudinary.uploader
+import os
+
+cloudinary.config(
+    cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key = os.getenv('CLOUDINARY_API_KEY'),
+    api_secret = os.getenv('CLOUDINARY_API_SECRET')
+)
+
 
 
 
@@ -206,7 +216,7 @@ def confirmar_pago():
                         flash('Por favor, selecciona a qué encargado entregarás el dinero (Juan o Camila). 😊', 'error')
                         return render_template('confirmar_pago.html', reservas=reservas, metodo_pago=metodo_pago)
                 # === TRANSFERENCIA ===
-                elif metodo_pago == 'transferencia':
+                if metodo_pago == 'transferencia':
                     comprobante = request.files.get('comprobante')
                     if not comprobante or not comprobante.filename:
                         flash('Por favor, sube un comprobante de transferencia (imagen o PDF). 😊', 'error')
@@ -222,6 +232,12 @@ def confirmar_pago():
                         flash('El comprobante no debe exceder los 5MB. 😊', 'error')
                         return render_template('confirmar_pago.html', reservas=reservas, metodo_pago=metodo_pago)
                     comprobante.seek(0)
+                    
+                    # SUBIR A CLOUDINARY
+                    upload_result = cloudinary.uploader.upload(comprobante, resource_type="auto")
+                    comprobante_url = upload_result['secure_url']
+                    pago.comprobante_url = comprobante_url  # O el campo que uses para almacenar la URL
+
                     # Guardar el archivo (nombre único y extensión original)
                     filename = secure_filename(f'comprobante_{reserva.id}_{uuid4().hex}{ext}')
                     relative_path = f'comprobantes/{filename}'
@@ -625,75 +641,4 @@ def admin_logout():
     return redirect(url_for('main.admin_login'))
 
 
-
-# crear_admins.py
-
-@main.route('/init_admins')
-def init_admins():
-    from app.modelos import Administrador
-    from app import db, bcrypt
-
-    try:
-        # ---- PRIMER ADMIN ----
-        # Intentar con correo_electronico. Si falla, intentar con 'email'
-        admin_kwargs1 = dict(
-            nombre_usuario="jfac2124",
-            correo_electronico="juancastaneda2123@gmail.com",
-            numero_celular="3156841671",
-            contrasena=bcrypt.generate_password_hash("jfac2124").decode('utf-8'),
-            nombre="Juan",
-            apellido="Alvarez"
-        )
-        try:
-            admin1 = Administrador(**admin_kwargs1)
-        except TypeError:
-            admin_kwargs1['email'] = admin_kwargs1.pop('correo_electronico')
-            admin1 = Administrador(**admin_kwargs1)
-        # Busca si ya existe
-        existe_admin1 = Administrador.query.filter_by(nombre_usuario="jfac2124").first()
-        if not existe_admin1:
-            db.session.add(admin1)
-
-        # ---- SEGUNDO ADMIN ----
-        admin_kwargs2 = dict(
-            nombre_usuario="mcvl1002",
-            correo_electronico="vergaramariacamila7@gmail.com",
-            numero_celular="3004720595",
-            contrasena=bcrypt.generate_password_hash("mcvl1002").decode('utf-8'),
-            nombre="Camila",
-            apellido="Vergara"
-        )
-        try:
-            admin2 = Administrador(**admin_kwargs2)
-        except TypeError:
-            admin_kwargs2['email'] = admin_kwargs2.pop('correo_electronico')
-            admin2 = Administrador(**admin_kwargs2)
-        existe_admin2 = Administrador.query.filter_by(nombre_usuario="mcvl1002").first()
-        if not existe_admin2:
-            db.session.add(admin2)
-
-        db.session.commit()
-        return "Admins cargados correctamente ✅"
-    except Exception as e:
-        db.session.rollback()
-        return f"Error: {str(e)}", 500
-
-
-
-
-
-@main.route('/recreate_admin_table')
-def recreate_admin_table():
-    try:
-        from app import db
-        # BORRAR TABLA
-        db.session.execute(text('DROP TABLE IF EXISTS administradores CASCADE;'))
-        db.session.commit()
-        # RECREAR TABLA SEGÚN EL MODELO ACTUAL
-        from app.modelos import Administrador
-        Administrador.__table__.create(db.engine)
-        return "Tabla administradores eliminada y recreada correctamente."
-    except Exception as e:
-        db.session.rollback()
-        return f"Error: {str(e)}", 500
 

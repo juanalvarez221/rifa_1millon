@@ -38,7 +38,7 @@ class Pago(db.Model):
     reserva_id = db.Column(db.Integer, db.ForeignKey('reservas.id'), nullable=False)
     metodo = db.Column(db.String(20), nullable=False)
     destinatario = db.Column(db.String(50))
-    comprobante_ruta = db.Column(db.String(255))
+    comprobante_url = db.Column(db.String(300), nullable=True)
     estado = db.Column(db.String(20), nullable=False, default='pendiente')
     creado_en = db.Column(db.DateTime, default=datetime.utcnow)
 
