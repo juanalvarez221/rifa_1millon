@@ -84,137 +84,131 @@
                 </tr>
             </thead>
             <tbody id="tablaParticipantesBody">
-            {% set contador = 1 %}
-            {% for usuario in usuarios %}
-                {% set reservas_usuario = usuario.reservas | sort(attribute='creado_en', reverse=True) %}
-                {% for reserva in reservas_usuario %}
-                    {% set estado_visual = "" %}
-                    {% if reserva.estado == 'pagada' %}
-                        {% set estado_visual = "pagada" %}
-                    {% elif reserva.estado == 'confirmada' %}
-                        {% set estado_visual = "confirmada" %}
-                    {% elif reserva.estado == 'activa' %}
-                        {% set estado_visual = "reservada" %}
-                    {% elif reserva.estado == 'expirada' %}
-                        {% set estado_visual = "expirada" %}
-                    {% elif reserva.estado == 'cancelada' %}
-                        {% set estado_visual = "cancelada" %}
-                    {% endif %}
+                {% set contador = 1 %}
+                {% for usuario in usuarios %}
+                    {% set reservas_usuario = usuario.reservas | sort(attribute='creado_en', reverse=True) %}
+                    {% for reserva in reservas_usuario %}
+                        {% set estado_visual = "" %}
+                        {% if reserva.estado == 'pagada' %}
+                            {% set estado_visual = "pagada" %}
+                        {% elif reserva.estado == 'confirmada' %}
+                            {% set estado_visual = "confirmada" %}
+                        {% elif reserva.estado == 'activa' %}
+                            {% set estado_visual = "reservada" %}
+                        {% elif reserva.estado == 'expirada' %}
+                            {% set estado_visual = "expirada" %}
+                        {% elif reserva.estado == 'cancelada' %}
+                            {% set estado_visual = "cancelada" %}
+                        {% endif %}
 
-                    <tr data-estado="{{ estado_visual }}">
-                        <td>{{ contador }}</td>
-                        <td>{{ usuario.primer_nombre }} {{ usuario.primer_apellido }}</td>
-                        <td>{{ usuario.correo_electronico }}</td>
-                        <td>{{ usuario.numero_celular }}</td>
-                        <td>
-                            <span class="badge fs-5 px-3 py-2 rounded-pill
-                            {% if estado_visual == 'pagada' %}bg-success
-                            {% elif estado_visual == 'confirmada' %}bg-primary
-                            {% elif estado_visual == 'reservada' %}bg-warning text-dark
-                            {% elif estado_visual == 'expirada' %}bg-secondary
-                            {% elif estado_visual == 'cancelada' %}bg-danger
-                            {% endif %}">
-                                {{ reserva.numero.numero }}
-                            </span>
-                        </td>
-                        <td>
-                            {% if reserva.pago %}
-                                {{ reserva.pago.metodo|capitalize }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if reserva.pago %}
-                                {% if reserva.pago.metodo == 'efectivo' %}
-                                    Efectivo a: {{ reserva.pago.destinatario or '-' }}
-                                {% elif reserva.pago.metodo == 'transferencia' %}
-                                    Transferencia
-                                {% endif %}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if reserva.pago and reserva.pago.comprobante_ruta %}
-                                <a href="{{ reserva.pago.comprobante_ruta }}" target="_blank" class="btn btn-sm btn-outline-primary">Ver</a>
-                            {% else %}
-                                    <a href="{{ reserva.pago.comprobante_url }}" target="_blank">
-                                        <img src="{{ reserva.pago.comprobante_url }}" alt="Comprobante" style="max-width:60px;max-height:60px;object-fit:cover;border-radius:8px;">
-                                    </a>
-                                {% endif %}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            <span class="badge fs-6 px-3 py-2 rounded-pill
-                            {% if estado_visual == 'pagada' %}bg-success
-                            {% elif estado_visual == 'confirmada' %}bg-primary
-                            {% elif estado_visual == 'reservada' %}bg-warning text-dark
-                            {% elif estado_visual == 'expirada' %}bg-secondary
-                            {% elif estado_visual == 'cancelada' %}bg-danger
-                            {% endif %}">
-                                {% if estado_visual == 'pagada' %}Pagada
-                                {% elif estado_visual == 'confirmada' %}Confirmada
-                                {% elif estado_visual == 'reservada' %}Reservada
-                                {% elif estado_visual == 'expirada' %}Expirada
-                                {% elif estado_visual == 'cancelada' %}Cancelada
-                                {% endif %}
-                            </span>
-                        </td>
-                        <td>
-                            {% if reserva.estado != 'expirada' %}
-                                {% set minutos = ((now - reserva.creado_en).total_seconds() // 60)|int %}
-                                {{ minutos }} min
-                                {% if estado_visual == 'reservada' and minutos >= 12 %}
-                                    <span class="text-danger"><i class="bi bi-exclamation-triangle"></i> ¡Por expirar!</span>
-                                {% endif %}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        <td>
-                            <!-- Acciones posibles por estado -->
-                            <div class="d-flex flex-column gap-2">
-                                {% if estado_visual == 'reservada' %}
-                                    <!-- Confirmar -->
-                                    <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='confirmada') }}">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                        <button type="submit" class="btn btn-sm btn-primary w-100">Confirmar</button>
-                                    </form>
-                                    <!-- Cancelar -->
-                                    <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='cancelada') }}">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                        <button type="submit" class="btn btn-sm btn-danger w-100">Cancelar</button>
-                                    </form>
-                                {% elif estado_visual == 'confirmada' %}
-                                    <!-- Marcar como Pagada -->
-                                    <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='pagada') }}">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                        <button type="submit" class="btn btn-sm btn-success w-100">Marcar como Pagada</button>
-                                    </form>
-                                    <!-- Anular Pago -->
-                                    <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='cancelada') }}">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger w-100">Anular Pago</button>
-                                    </form>
-                                {% elif estado_visual == 'pagada' %}
-                                    <!-- Liberar número -->
-                                    <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='disponible') }}">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                        <button type="submit" class="btn btn-sm btn-outline-warning w-100">Liberar</button>
-                                    </form>
+                        <tr data-estado="{{ estado_visual }}">
+                            <td>{{ contador }}</td>
+                            <td>{{ usuario.primer_nombre }} {{ usuario.primer_apellido }}</td>
+                            <td>{{ usuario.correo_electronico }}</td>
+                            <td>{{ usuario.numero_celular }}</td>
+                            <td>
+                                <span class="badge fs-5 px-3 py-2 rounded-pill
+                                {% if estado_visual == 'pagada' %}bg-success
+                                {% elif estado_visual == 'confirmada' %}bg-primary
+                                {% elif estado_visual == 'reservada' %}bg-warning text-dark
+                                {% elif estado_visual == 'expirada' %}bg-secondary
+                                {% elif estado_visual == 'cancelada' %}bg-danger
+                                {% endif %}">
+                                    {{ reserva.numero.numero }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if reserva.pago %}
+                                    {{ reserva.pago.metodo|capitalize }}
                                 {% else %}
-                                    <span class="text-muted">---</span>
+                                    -
                                 {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% set contador = contador + 1 %}
+                            </td>
+                            <td>
+                                {% if reserva.pago %}
+                                    {% if reserva.pago.metodo == 'efectivo' %}
+                                        Efectivo a: {{ reserva.pago.destinatario or '-' }}
+                                    {% elif reserva.pago.metodo == 'transferencia' %}
+                                        Transferencia
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if reserva.pago and reserva.pago.comprobante_ruta %}
+                                    <a href="{{ reserva.pago.comprobante_ruta }}" target="_blank" class="btn btn-sm btn-outline-primary">Ver</a>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge fs-6 px-3 py-2 rounded-pill
+                                {% if estado_visual == 'pagada' %}bg-success
+                                {% elif estado_visual == 'confirmada' %}bg-primary
+                                {% elif estado_visual == 'reservada' %}bg-warning text-dark
+                                {% elif estado_visual == 'expirada' %}bg-secondary
+                                {% elif estado_visual == 'cancelada' %}bg-danger
+                                {% endif %}">
+                                    {% if estado_visual == 'pagada' %}Pagada
+                                    {% elif estado_visual == 'confirmada' %}Confirmada
+                                    {% elif estado_visual == 'reservada' %}Reservada
+                                    {% elif estado_visual == 'expirada' %}Expirada
+                                    {% elif estado_visual == 'cancelada' %}Cancelada
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if reserva.estado != 'expirada' %}
+                                    {% set minutos = ((now - reserva.creado_en).total_seconds() // 60)|int %}
+                                    {{ minutos }} min
+                                    {% if estado_visual == 'reservada' and minutos >= 12 %}
+                                        <span class="text-danger"><i class="bi bi-exclamation-triangle"></i> ¡Por expirar!</span>
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <!-- Acciones posibles por estado -->
+                                <div class="d-flex flex-column gap-2">
+                                    {% if estado_visual == 'reservada' %}
+                                        <!-- Confirmar -->
+                                        <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='confirmada') }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                            <button type="submit" class="btn btn-sm btn-primary w-100">Confirmar</button>
+                                        </form>
+                                        <!-- Cancelar -->
+                                        <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='cancelada') }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                            <button type="submit" class="btn btn-sm btn-danger w-100">Cancelar</button>
+                                        </form>
+                                    {% elif estado_visual == 'confirmada' %}
+                                        <!-- Marcar como Pagada -->
+                                        <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='pagada') }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                            <button type="submit" class="btn btn-sm btn-success w-100">Marcar como Pagada</button>
+                                        </form>
+                                        <!-- Anular Pago -->
+                                        <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='cancelada') }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">Anular Pago</button>
+                                        </form>
+                                    {% elif estado_visual == 'pagada' %}
+                                        <!-- Liberar número -->
+                                        <form method="POST" action="{{ url_for('main.cambiar_estado_numero', numero_id=reserva.numero.id, estado='disponible') }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-warning w-100">Liberar</button>
+                                        </form>
+                                    {% else %}
+                                        <span class="text-muted">---</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% set contador = contador + 1 %}
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
             </tbody>
         </table>
     </div>
