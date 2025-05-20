@@ -680,3 +680,15 @@ def init_admins():
 
 
 
+@main.route('/recreate_admin_table')
+def recreate_admin_table():
+    try:
+        from app import db
+        db.session.execute('DROP TABLE IF EXISTS administradores CASCADE;')
+        db.session.commit()
+        from app.modelos import Administrador
+        Administrador.__table__.create(db.engine)
+        return "Tabla administradores eliminada y recreada."
+    except Exception as e:
+        db.session.rollback()
+        return f"Error: {str(e)}", 500
