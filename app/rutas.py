@@ -18,6 +18,8 @@ from uuid import uuid4
 from collections import namedtuple
 from sqlalchemy import func
 from flask_login import login_required
+from app import crear_app, db, bcrypt
+
 
 
 main = Blueprint('main', __name__)
@@ -623,40 +625,45 @@ def admin_logout():
     return redirect(url_for('main.admin_login'))
 
 
-@main.route('/crear_admins_una_vez')
-def crear_admins_una_vez():
+
+# crear_admins.py
+
+@main.route('/init_admins')
+def init_admins():
+    from app.modelos import Administrador
+    from app import db, bcrypt
+
     try:
-        from app.modelos import Administrador
-        admins_creados = []
-        # Juan
-        if not Administrador.query.filter_by(nombre_usuario="jfac2124").first():
+        # Admin 1: Juan Alvarez
+        admin1 = Administrador.query.filter_by(nombre_usuario="jfac2124").first()
+        if not admin1:
             admin1 = Administrador(
-                primer_nombre="Juan",
-                primer_apellido="Alvarez",
+                nombre="Juan",
+                apellido="Alvarez",
                 nombre_usuario="jfac2124",
                 correo_electronico="juancastaneda2123@gmail.com",
                 numero_celular="3156841671",
                 contrasena=bcrypt.generate_password_hash("jfac2124").decode('utf-8')
             )
             db.session.add(admin1)
-            admins_creados.append("Juan Alvarez")
-        # Camila
-        if not Administrador.query.filter_by(nombre_usuario="mcvl1002").first():
+
+        # Admin 2: Camila Vergara
+        admin2 = Administrador.query.filter_by(nombre_usuario="mcvl1002").first()
+        if not admin2:
             admin2 = Administrador(
-                primer_nombre="Camila",
-                primer_apellido="Vergara",
+                nombre="Camila",
+                apellido="Vergara",
                 nombre_usuario="mcvl1002",
                 correo_electronico="vergaramariacamila7@gmail.com",
                 numero_celular="3004720595",
                 contrasena=bcrypt.generate_password_hash("mcvl1002").decode('utf-8')
             )
             db.session.add(admin2)
-            admins_creados.append("Camila Vergara")
+
         db.session.commit()
-        return f"Admins creados: {', '.join(admins_creados) if admins_creados else 'Ninguno, ya existían'}"
+        return "Admins cargados correctamente ✅"
     except Exception as e:
         db.session.rollback()
-        return str(e), 500
-
+        return f"Error: {str(e)}", 500
 
 
