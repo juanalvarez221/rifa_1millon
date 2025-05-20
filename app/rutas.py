@@ -625,17 +625,16 @@ def admin_logout():
 
 @main.route('/init_numeros_base')
 def init_numeros_base():
-    # SOLO ejecuta esto 1 vez (luego borra la ruta)
     try:
-        cantidad = 1000  # Cambia a la cantidad de números que necesitas
-        creados = 0
-        for n in range(1, cantidad + 1):
-            numero_str = str(n).zfill(2)
+        for n in range(0, 100):
+            numero_str = f"{n:02d}"   # 00, 01, ..., 99
             if not Numero.query.filter_by(numero=numero_str).first():
-                db.session.add(Numero(numero=numero_str, estado='disponible'))
-                creados += 1
+                nuevo_numero = Numero(numero=numero_str, estado='disponible')
+                db.session.add(nuevo_numero)
         db.session.commit()
-        return f"{creados} números base cargados correctamente.", 200
+        return "Números cargados correctamente (00-99)"
     except Exception as e:
         db.session.rollback()
         return str(e), 500
+
+
